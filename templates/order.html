@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Оформление заказа - Интернет-магазин{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script src="https://api-maps.yandex.ru/2.1/?apikey=ваш_API_ключ&lang=ru_RU" type="text/javascript"></script>
+{% endblock %}
+
+{% block content %}
+<section class="order">
+    <div class="container">
+        <h1>Оформление заказа</h1>
+        
+        <form id="orderForm" class="order-form" method="POST">
+            <div class="form-group">
+                <label for="fullname">ФИО *</label>
+                <input type="text" id="fullname" name="fullname" required>
+                <span class="error-message" id="fullname-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Телефон *</label>
+                <input type="tel" id="phone" name="phone" required 
+                       pattern="[0-9]+" placeholder="Только цифры">
+                <span class="error-message" id="phone-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email">
+                <span class="error-message" id="email-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Адрес доставки *</label>
+                <div id="map" class="order-map"></div>
+                <input type="hidden" id="coordinates" name="coordinates" required>
+                <span class="error-message" id="map-error"></span>
+                <div id="coordinates-hint" class="coordinates-hint"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="comment">Комментарий к заказу</label>
+                <textarea id="comment" name="comment" maxlength="500"></textarea>
+                <div class="char-counter">
+                    <span id="char-count">0</span>/500 символов
+                </div>
+                <span class="error-message" id="comment-error"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Отправить</button>
+            <div id="form-result" class="form-result"></div>
+        </form>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация карты
+    ymaps.ready(initMap);
+    
+    function initMap() {
+        var myMap = new ymaps.Map('map', {
+            center: [55.76, 37.64], // Москва
+            zoom: 10
+        });
+
+        // Обработчик клика по карте
+        myMap.events.add('click', function(e) {
+            var coords = e.get('coords');
+            
+            // Удаляем предыдущую метку если она есть
+            myMap.geoObjects.removeAll();
+            
+            // Создаем метку
+            var placemark = new ymaps.Placemark(coords, {
+                balloonContent: 'Координаты: ' + coords[0].toFixed(6) + ', ' + coords[1].toFixed(6)
+            });
+            
+            // Добавляем метку на карту
+            myMap.geoObjects.add(placemark);
+            
+            // Сохраняем координаты
+            document.getElementById('coordinates').value = coords.join(',');
+            
+            // Показываем подсказку
+            document.getElementById('coordinates-hint').textContent = 
+                'Выбранные координаты: ' + coords[0].toFixed(6) + ', ' + coords[1].toFixed(6);
+        });
+    }
+
+    // Счетчик символов в комментарии
+    var commentField = document.getElementById('comment');
+    var charCount = document.getElementById('char-count');
+    
+    commentField.addEventListener('input', function() {
+        charCount.textContent = this.value.length;
+    });
+
+    // Валидация формы
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var isValid = true;
+        var errors = [];
+
+        // Проверка ФИО
+        var fullname = document.getElementById('fullname').value.trim();
+        if (!fullname) {
+            isValid = false;
+            document.getElementById('fullname-error').textContent = 'Не заполнено поле ФИО';
+            errors.push('Не заполнено поле ФИО');
+        } else {
+            document.getElementById('fullname-error').textContent = '';
+        }
+
+        // Проверка телефона
+        var phone = document.getElementById('phone').value.trim();
+        if (!phone) {
+            isValid = false;
+            document.getElementById('phone-error').textContent = 'Не заполнено поле телефона';
+            errors.push('Не заполнено поле телефона');
+        } else if (!/^[0-9]+$/.test(phone)) {
+            isValid = false;
+            document.getElementById('phone-error').textContent = 'Телефон должен содержать только цифры';
+            errors.push('Телефон должен содержать только цифры');
+        } else {
+            document.getElementById('phone-error').textContent = '';
+        }
+
+        // Проверка email
+        var email = document.getElementById('email').value.trim();
+        if (email && !email.includes('@')) {
+            isValid = false;
+            document.getElementById('email-error').textContent = 'Email должен содержать символ @';
+            errors.push('Email должен содержать символ @');
+        } else {
+            document.getElementById('email-error').textContent = '';
+        }
+
+        // Проверка координат
+        var coordinates = document.getElementById('coordinates').value;
+        if (!coordinates) {
+            isValid = false;
+            document.getElementById('map-error').textContent = 'Не отмечен адрес доставки';
+            errors.push('Не отмечен адрес доставки');
+        } else {
+            document.getElementById('map-error').textContent = '';
+        }
+
+        // Вывод результата
+        var resultDiv = document.getElementById('form-result');
+        if (isValid) {
+            resultDiv.textContent = 'Заказ оформлен!';
+            resultDiv.className = 'form-result success';
+            // Здесь можно добавить отправку формы на сервер
+        } else {
+            resultDiv.innerHTML = errors.join('<br>');
+            resultDiv.className = 'form-result error';
+        }
+    });
+});
+</script>
+{% endblock %} 

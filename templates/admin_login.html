@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Вход в админ-панель - Интернет-магазин{% endblock %}
+
+{% block content %}
+<section class="admin-login">
+    <div class="login-container">
+        <h1>Вход в админ-панель</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="{{ url_for('admin_login') }}">
+            <div class="form-group">
+                <label for="username">Имя пользователя</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Войти</button>
+        </form>
+    </div>
+</section>
+{% endblock %} 

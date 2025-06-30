@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование товара - Интернет-магазин{% endblock %}
+
+{% block content %}
+<section class="admin">
+    <div class="admin-header">
+        <h1>Редактирование товара</h1>
+        {% if message %}
+        <div class="alert {{ message_type }}">
+            {{ message }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="edit-form">
+        <form method="POST" action="{{ url_for('admin_edit_product', product_id=product.id) }}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">Название товара</label>
+                <input type="text" id="name" name="name" value="{{ product.name }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Описание</label>
+                <textarea id="description" name="description" rows="4" required>{{ product.description }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="price">Цена</label>
+                <input type="number" id="price" name="price" step="0.01" value="{{ product.price }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Текущее изображение</label>
+                <img src="{{ product.image }}" alt="{{ product.name }}" class="current-image">
+            </div>
+            
+            <div class="form-group">
+                <label for="image">Новое изображение (оставьте пустым, чтобы сохранить текущее)</label>
+                <input type="file" id="image" name="image" accept="image/*">
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                <a href="{{ url_for('admin') }}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %} 
