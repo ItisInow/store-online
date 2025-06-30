@@ -21,8 +21,8 @@
 
 1. Клонируйте репозиторий:
 ```bash
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
+git clone https://github.com/ItisInow/store-online.git
+cd store-online
 ```
 
 2. Создайте виртуальное окружение и активируйте его:
